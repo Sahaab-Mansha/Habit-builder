@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 void main() {
   runApp(MyApp());
 }
@@ -13,7 +12,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(title: Text('Hello Flutter')),
-        body: Center(child: Text('Welcome to Fluttei !')),
+        body: Center(child: Text('Welcome to Flutteeee !')),
       ),
     );
   }
