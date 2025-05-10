@@ -1,5 +1,3 @@
-
-// screens/home_screen.dart
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -43,7 +41,6 @@ class HomeScreen extends StatelessWidget {
             icon: const Icon(Icons.settings, color: Colors.black87),
             onPressed: _goToSettings,
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: Padding(
@@ -90,6 +87,14 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/new_habit');
+        },
+          backgroundColor: const Color(0xFFF9E0E3),
+        child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
