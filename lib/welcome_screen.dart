@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart'; // Import the HomeScreen
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -15,7 +16,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       _isLoading = true;
     });
 
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 1));
 
     setState(() {
       _isLoading = false;
