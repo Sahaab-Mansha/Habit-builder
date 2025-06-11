@@ -1,58 +1,66 @@
 import 'dart:developer';
-
 import 'package:isar/isar.dart';
 part 'habit_model.g.dart';
-@embedded
 
+@embedded
 class Habit {
-  
-  late String habitName;
-  late DateTime? lastCompleted;
-  late int noOfTasks; // Was DateTime, changed to int for task count
-  late int index = -1;
-  late bool isCompleted = false;
-  late List<String> tasks = [];
-  late String emoji = "😊"; // Default emoji
-       // List of task names
-       Habit({
-    required this.habitName,
-    required this.tasks,
+  String habitName = ''; // Default empty string
+  DateTime? lastCompleted;
+  int noOfTasks = 0; // Default to 0
+  int index=0;
+  bool isCompleted = false;
+  List<String> tasks = [];
+  String emoji = "😊"; // Default emoji
+
+  Habit({
+    this.habitName = '', // Make optional with default
+    this.tasks = const [], // Make optional with default
     this.emoji = "😊",
-  }
-  ) {
+  }) {
     lastCompleted = null;
     noOfTasks = tasks.length;
     index = 0; // Default index
     isCompleted = false; // Default completion status
   }
 
-  void updateStreak()
-  {
-    if(!isCompleted)
-    {
-       lastCompleted = DateTime.now();
-       print("Updated last completed time: $lastCompleted");
-    index++;
-    if (index >= noOfTasks) {
-      isCompleted = true; // Reset index after completing all tasks
-    }
-    
-    }
-    
-  }     
-
-  String? getTask()
-  {
-    if (index < tasks.length && DateTime.now().difference(lastCompleted!).inDays > 1) 
-    {
-      print("time difference " + DateTime.now().difference(lastCompleted!).inDays.toString());
-      return tasks[index];
-    } 
-    else 
-    {
-      print("Index exceeds task list or last completed time is not valid.");
-      return null; // Handle case where index exceeds task list
+  void updateStreak() {
+    if (!isCompleted) {
+      lastCompleted = DateTime.now();
+      print("Last completed updated to: $lastCompleted");
+      index++;
+      print("index updated to: $index");
+      if (index >= noOfTasks-1) {
+        isCompleted = true; // Mark as complete after all tasks
+        print("Habit completed!");
+      }
     }
   }
 
+  
+
+  String? getTask() {
+    if (index >= tasks.length) {
+      print("Index exceeds task list.");
+      return null;
+    }
+   print("lastcompleted: $lastCompleted");
+    if (lastCompleted == null) {
+      return tasks[index];
+    }
+
+    // Normalize dates to midnight for day comparison
+    final today = DateTime.now();
+    final currentDay = DateTime(today.year, today.month, today.day);
+    final lastDay = DateTime(lastCompleted!.year, lastCompleted!.month, lastCompleted!.day);
+    final difference = currentDay.difference(lastDay).inDays;
+
+    print("Day difference: $difference");
+
+    if (difference > 1) {
+      return tasks[index];
+    } else {
+      print("Last completed was too recent (same day or next day).");
+      return null;
+    }
+  }
 }

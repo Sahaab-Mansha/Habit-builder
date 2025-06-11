@@ -1,7 +1,11 @@
-import 'package:flutter/material.dart';
-
-class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({super.key});
+  import 'package:flutter/material.dart';
+import 'package:habit_builder/main_page.dart';
+  import 'package:habit_builder/settings.dart';
+  import 'package:habit_builder/streak.dart';
+  import 'package:habit_builder/main_page.dart';
+  class WelcomeScreen extends StatefulWidget {
+    String userId;
+     WelcomeScreen(this.userId,{super.key});
 
     @override
     _WelcomeScreenState createState() => _WelcomeScreenState();
@@ -15,7 +19,7 @@ class WelcomeScreen extends StatefulWidget {
         _isLoading = true;
       });
 
-    await Future.delayed(const Duration(seconds: 3));
+      await Future.delayed(const Duration(seconds: 3));
 
       setState(() {
         _isLoading = false;

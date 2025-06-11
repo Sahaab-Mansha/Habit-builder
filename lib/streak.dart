@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'UserService.dart';   // your Isar DB helper
 import 'user_model.dart';
 import 'main_page.dart';
+import 'UserService.dart'; // your UserService helper
 class Streak extends StatefulWidget {
   final String userId;
   Streak(this.userId, {Key? key}) : super(key: key);
@@ -15,7 +16,7 @@ class _StreakState extends State<Streak> {
   String babyName = "Brian";
   String username = "Sahaab";
   bool isLoading = true;
-
+  String gender = '';
   @override
   void initState() {
     super.initState();
@@ -26,11 +27,13 @@ class _StreakState extends State<Streak> {
     final fetchedStreak   = await getStreaks(widget.userId);
     final fetchedUsername = await getUserName(widget.userId);
     final fetchedBabyName = await getBabyname(widget.userId);
+    final fetchedGender = await GetGender(widget.userId);
 
     setState(() {
       streak   = fetchedStreak;
       username = fetchedUsername;
       babyName = fetchedBabyName;
+      gender   = fetchedGender;
       isLoading = false;
     });
   }
@@ -97,8 +100,16 @@ class _StreakState extends State<Streak> {
                       CircleAvatar(
                         radius: screenWidth * 0.1,
                         backgroundColor: Colors.blueAccent,
-                        child: Icon(Icons.person,
-                            size: screenWidth * 0.12, color: Colors.white),
+                        child: ClipOval(
+                          child: Image.asset(
+                            gender == 'male'
+                                ? 'assets/avatar_male.png'
+                                : 'assets/avatar_female.png',
+                            width: screenWidth * 0.2,
+                            height: screenWidth * 0.2,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                       SizedBox(height: screenHeight * 0.015),
                       Text(
@@ -131,7 +142,7 @@ class _StreakState extends State<Streak> {
                             ),
                             SizedBox(height: screenHeight * 0.015),
                             Image.asset(
-                              streak <= 1
+                              streak < 1
                                   ? 'assets/sad_emoji.png'
                                   : 'assets/happy_emoji.png',
                               height: screenHeight * 0.15,

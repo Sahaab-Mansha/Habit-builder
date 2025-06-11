@@ -41,6 +41,7 @@ class _LoginscreenState extends State<Loginscreen> {
         _showAlert("Incorrect password.");
       } else {
         // If both are correct, navigate to the main page
+        updateStreak(user.userId); // Update streak on login
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) =>HomeScreen(user.userId)),

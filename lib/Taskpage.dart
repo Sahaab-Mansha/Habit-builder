@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:habit_builder/habit_model.dart';
 import 'package:habit_builder/main_page.dart';
 import 'UserHabits.dart';
-import 'UserHabitsService.dart'; // Import your HomeScreen
-import 'habit_model.dart'; // Make sure this has GetHabitNames()
+import 'UserHabitsService.dart';
+import 'habit_model.dart';
 import 'package:scratcher/scratcher.dart';
 import 'package:flutter/services.dart';
 import 'package:habit_builder/UserService.dart';
+import 'grid.dart';
 
 class TaskPage extends StatefulWidget {
   final String userId;
-  final String habitName;
   final int index;
 
-  const TaskPage(this.userId,
-      {super.key, required this.habitName, required this.index});
+  const TaskPage(this.userId, {super.key, required this.index});
 
   @override
   State<TaskPage> createState() => _TaskPageState();
@@ -25,26 +24,30 @@ class _TaskPageState extends State<TaskPage> {
   static const _pillBlue = Color(0xFFB0D0E7);
   static const _mint = Color(0xFFE1F5DA);
   static const _pinkBtn = Color(0xFFECC7CE);
+  static const _headerPink = Color(0xFFFFD1DC); // Light pink header
 
   String? task = "";
   double _scratch = 0;
   bool _isLoading = true;
   int? streak = 0;
-
-  bool _taskRevealed = false; // ✅ New state variable
+  String? emoji = "";
+  String? habitName = "";
+  bool _taskRevealed = false;
 
   @override
   void initState() {
     super.initState();
-
     fetchHabits();
   }
 
-
   Future<void> fetchHabits() async {
-    final st = await getTask(widget.userId,widget.index);
+    final st = await getTask(widget.userId, widget.index);
+    final em = await getEmoji(widget.userId, widget.index);
+    final na = await GetHabitName(widget.userId, widget.index);
     setState(() {
+      emoji = em;
       task = st;
+      habitName = na;
       _isLoading = false;
     });
   }
@@ -66,50 +69,40 @@ class _TaskPageState extends State<TaskPage> {
               padding: EdgeInsets.symmetric(vertical: hp(.03)),
               child: Column(
                 children: [
-                  // Header (unchanged)
+                  // ✅ Light Pink Header with Back Button and Title
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(
                         horizontal: wp(.04), vertical: hp(.016)),
                     decoration: BoxDecoration(
-                      color: _mint,
+                      color: _headerPink,
                       borderRadius: BorderRadius.circular(18),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Stack(
+                      alignment: Alignment.center,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => HomeScreen(widget.userId)),
-                            );
-                          },
-                        ),
-                        Expanded(
-                          child: Center(
-                            child: Image.asset(
-                              'assets/logo.png',
-                              height: hp(.045),
-                              fit: BoxFit.contain,
-                            ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => HomeScreen(widget.userId)),
+                              );
+                            },
                           ),
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.local_fire_department,
-                                color: Colors.red),
-                            SizedBox(width: wp(.02)),
-                            CircleAvatar(
-                              radius: hp(.026),
-                              backgroundColor: Colors.lightBlueAccent,
-                              child: const Icon(Icons.person,
-                                  color: Colors.white),
+                        const Center(
+                          child: Text(
+                            "TodayTask",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
@@ -132,12 +125,14 @@ class _TaskPageState extends State<TaskPage> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(widget.habitName,
-                                  style: TextStyle(
-                                      fontSize: hp(.024),
-                                      fontWeight: FontWeight.w600)),
-                              SizedBox(width: wp(.02)),
-                              const Icon(Icons.edit, size: 20),
+                              Text(
+                                (habitName ?? 'Habit') + ' ' + (emoji ?? '😊'),
+                                style: TextStyle(
+                                  fontSize: wp(.05),
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -152,10 +147,12 @@ class _TaskPageState extends State<TaskPage> {
                                 fontSize: 18, fontWeight: FontWeight.w500),
                           ),
                         ] else if (task?.isEmpty ?? true) ...[
-                          const Text('No task found.'),
+                          const Text('You have completed all tasks!',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w500)),
                         ] else ...[
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
+                            padding: const EdgeInsets.only(bottom: 20.0),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: Scratcher(
@@ -167,7 +164,7 @@ class _TaskPageState extends State<TaskPage> {
                                 onThreshold: () {
                                   HapticFeedback.mediumImpact();
                                   setState(() {
-                                    _taskRevealed = true; // ✅ Reveal state
+                                    _taskRevealed = true;
                                   });
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -176,7 +173,7 @@ class _TaskPageState extends State<TaskPage> {
                                 },
                                 child: Container(
                                   width: double.infinity,
-                                  padding: const EdgeInsets.all(20),
+                                  padding: const EdgeInsets.all(50),
                                   decoration: BoxDecoration(
                                     color: _mint,
                                     borderRadius: BorderRadius.circular(16),
@@ -193,21 +190,23 @@ class _TaskPageState extends State<TaskPage> {
                             ),
                           ),
 
-                          // ✅ "Task Done" Button
                           if (_taskRevealed) ...[
                             ElevatedButton(
                               onPressed: () {
-                                // Here you would typically call a function to mark the task as done
-                                updateHabit(widget.userId,widget.index);
+                                updateHabit(widget.userId, widget.index);
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => HomeScreen(widget.userId)),
+                                );
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text('Task marked as done!')),
                                 );
-                                // TODO: Add actual logic here
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(
-                                    255, 229, 166, 187), // same as scratcher
+                                backgroundColor:
+                                    const Color.fromARGB(255, 229, 166, 187),
                                 foregroundColor: Colors.black,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 32, vertical: 14),
@@ -220,6 +219,7 @@ class _TaskPageState extends State<TaskPage> {
                                 ),
                               ),
                               child: const Text('Task Done'),
+
                             ),
                             SizedBox(height: hp(.04)),
                           ]

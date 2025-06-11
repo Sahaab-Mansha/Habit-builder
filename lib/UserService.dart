@@ -52,14 +52,22 @@ Future<void> updateStreak(String userId) async {
   if (user != null) {
     final now = DateTime.now();
     final last = user.lastLogin;
-    final difference = now.difference(last).inDays;
+    
+    // Normalize dates to midnight for day comparison
+    final today = DateTime(now.year, now.month, now.day);
+    final lastLoginDay = DateTime(last.year, last.month, last.day);
+    final difference = today.difference(lastLoginDay).inDays;
 
     await isar.writeTxn(() async {
       if (difference == 1) {
+        // Consecutive calendar days
         user.streaks += 1;
       } else if (difference > 1) {
+        // More than one day gap - reset streak
         user.streaks = 0;
       }
+      // Don't update streak if difference == 0 (same day)
+      
       user.lastLogin = now;
       await isar.users.put(user);
     });
@@ -110,4 +118,43 @@ Future<void> deleteUsers() async {
       }
     });
   }
+}
+Future<void> ResetUser(String userId) async {
+  final user = await isar.users.filter().userIdEqualTo(userId).findFirst();
+  if (user != null) {
+    user.streaks = 0;
+    user.lastLogin = DateTime.now();
+    user.babyName = "Baran"; // Reset to default
+    await isar.writeTxn(() => isar.users.put(user));
+  }
+}
+
+Future<void> deleteUser(String userId) async {
+  final user = await isar.users.filter().userIdEqualTo(userId).findFirst();
+  if (user != null) {
+    await isar.writeTxn(() async {
+      await isar.users.delete(user.id);
+      await isar.userHabits.where().filter().userIdEqualTo(userId).deleteAll();
+    });
+  }
+}
+
+void changePassword(String userId, String newPassword) async {
+  final user = await isar.users.filter().userIdEqualTo(userId).findFirst();
+  if (user != null) {
+    user.password = newPassword;
+    await isar.writeTxn(() => isar.users.put(user));
+  }
+}
+void changeUsername(String userId, String newUsername) async {
+  final user = await isar.users.filter().userIdEqualTo(userId).findFirst();
+  if (user != null) {
+    user.username = newUsername;
+    await isar.writeTxn(() => isar.users.put(user));
+  }
+}
+
+Future<String> GetGender(String userId) async {
+  final user = await isar.users.filter().userIdEqualTo(userId).findFirst();
+  return user?.gender ?? "Unknown"; // Return gender or default
 }

@@ -94,14 +94,15 @@ Habit _habitDeserialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = Habit(habitName: '', tasks: []);
-  object.emoji = reader.readString(offsets[0]);
-  object.habitName = reader.readString(offsets[1]);
+  final object = Habit(
+    emoji: reader.readStringOrNull(offsets[0]) ?? "😊",
+    habitName: reader.readStringOrNull(offsets[1]) ?? '',
+    tasks: reader.readStringList(offsets[6]) ?? const [],
+  );
   object.index = reader.readLong(offsets[2]);
   object.isCompleted = reader.readBool(offsets[3]);
-  object.lastCompleted = reader.readDateTime(offsets[4]);
+  object.lastCompleted = reader.readDateTimeOrNull(offsets[4]);
   object.noOfTasks = reader.readLong(offsets[5]);
-  object.tasks = reader.readStringList(offsets[6]) ?? [];
   return object;
 }
 
@@ -113,19 +114,19 @@ P _habitDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset) ?? "😊") as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset) ?? '') as P;
     case 2:
       return (reader.readLong(offset)) as P;
     case 3:
       return (reader.readBool(offset)) as P;
     case 4:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 5:
       return (reader.readLong(offset)) as P;
     case 6:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readStringList(offset) ?? const []) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -452,8 +453,24 @@ extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Habit, Habit, QAfterFilterCondition> lastCompletedIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'lastCompleted',
+      ));
+    });
+  }
+
+  QueryBuilder<Habit, Habit, QAfterFilterCondition> lastCompletedIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'lastCompleted',
+      ));
+    });
+  }
+
   QueryBuilder<Habit, Habit, QAfterFilterCondition> lastCompletedEqualTo(
-      DateTime value) {
+      DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'lastCompleted',
@@ -463,7 +480,7 @@ extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
   }
 
   QueryBuilder<Habit, Habit, QAfterFilterCondition> lastCompletedGreaterThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -476,7 +493,7 @@ extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
   }
 
   QueryBuilder<Habit, Habit, QAfterFilterCondition> lastCompletedLessThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -489,8 +506,8 @@ extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
   }
 
   QueryBuilder<Habit, Habit, QAfterFilterCondition> lastCompletedBetween(
-    DateTime lower,
-    DateTime upper, {
+    DateTime? lower,
+    DateTime? upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {

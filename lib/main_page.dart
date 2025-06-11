@@ -3,7 +3,9 @@ import 'package:habit_builder/settings.dart';
 import 'package:habit_builder/streak.dart';
 import 'package:habit_builder/Taskpage.dart';
 import 'package:habit_builder/addhabit.dart';
-import 'package:habit_builder/UserHabitsService.dart'; // Where getHabitNames() is defined
+import 'package:habit_builder/UserHabitsService.dart'; 
+import 'profile.dart';// Where getHabitNames() is defined
+import 'grid.dart';
 
 class HomeScreen extends StatefulWidget {
   final String userId;
@@ -42,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
   void _goToSettings(BuildContext context) => Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => SettingsPage(widget.userId)),
+        MaterialPageRoute(builder: (context) => SettingsScreen(userId: widget.userId)),
       );
 
   void _goToStreak(BuildContext context) => Navigator.pushReplacement(
@@ -53,7 +55,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void _goToHabit(int index, String habitName) {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => TaskPage(widget.userId, habitName: habitName, index: index)),
+      MaterialPageRoute(builder: (context) => HabitCalendarScreen( userId:widget.userId, index: index)),
+    );
+  }
+
+  void _goToProfile(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => ProfileScreen(userId: widget.userId)),
     );
   }
 
@@ -77,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.person, color: Colors.black87),
-            onPressed: () {},
+            onPressed: () => _goToProfile(context),
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.black87),
@@ -93,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("MY HABITS",
+                  const Text("HABITS",
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),

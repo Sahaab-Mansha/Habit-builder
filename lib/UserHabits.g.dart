@@ -87,8 +87,9 @@ UserHabits _userHabitsDeserialize(
         offsets[0],
         HabitSchema.deserialize,
         allOffsets,
-        Habit(habitName: '', tasks: []),
-      ) ?? [];
+        Habit(),
+      ) ??
+      [];
   object.id = id;
   object.userId = reader.readString(offsets[1]);
   return object;
@@ -106,9 +107,9 @@ P _userHabitsDeserializeProp<P>(
             offset,
             HabitSchema.deserialize,
             allOffsets,
-            Habit(habitName: '', tasks: []),
-          ) ?? []
-          ) as P;
+            Habit(),
+          ) ??
+          []) as P;
     case 1:
       return (reader.readString(offset)) as P;
     default:
